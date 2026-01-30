@@ -14,10 +14,9 @@ class Settings(BaseSettings):
 
     # Recipe source providers (optional)
     recipe_source_enabled: bool = True
-    recipe_source_provider: str = "spoonacular"  # spoonacular | edamam | none
+    recipe_source_provider: str = "auto"  # auto | spoonacular | mealdb | none
     spoonacular_api_key: str | None = None
-    edamam_app_id: str | None = None
-    edamam_app_key: str | None = None
+    mealdb_api_key: str = "1"
 
     # RAG (optional)
     rag_enabled: bool = False

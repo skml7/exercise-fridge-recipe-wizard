@@ -12,6 +12,28 @@ def _to_csv(values: List[str]) -> str:
     return ",".join([v.strip() for v in values if v.strip()])
 
 
+def _mealdb_get(path: str, params: dict) -> dict | None:
+    api_key = settings.mealdb_api_key or "1"
+    url = f"https://www.themealdb.com/api/json/v1/{api_key}/{path}"
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except Exception:
+        return None
+    if response.status_code != 200:
+        return None
+    return response.json()
+
+
+def _mealdb_extract_ingredients(meal: dict) -> List[str]:
+    ingredients: List[str] = []
+    for i in range(1, 21):
+        ing = (meal.get(f"strIngredient{i}") or "").strip()
+        meas = (meal.get(f"strMeasure{i}") or "").strip()
+        if ing:
+            ingredients.append(f"{meas} {ing}".strip())
+    return ingredients
+
+
 def _spoonacular_search(fridge_input: FridgeInput) -> List[RecipeOption]:
     if not settings.spoonacular_api_key:
         return []
@@ -60,45 +82,45 @@ def _spoonacular_search(fridge_input: FridgeInput) -> List[RecipeOption]:
     return results
 
 
-def _edamam_search(fridge_input: FridgeInput) -> List[RecipeOption]:
-    if not settings.edamam_app_id or not settings.edamam_app_key:
-        return []
-
-    ingredients = fridge_input.main_vegetables + fridge_input.aromatics + fridge_input.spices
-    if fridge_input.proteins:
-        ingredients += fridge_input.proteins
-
-    params = {
-        "type": "public",
-        "app_id": settings.edamam_app_id,
-        "app_key": settings.edamam_app_key,
-        "q": _to_csv(ingredients) or "weeknight dinner",
-        "cuisineType": fridge_input.cuisine_mood,
-    }
-
-    response = requests.get(
-        "https://api.edamam.com/api/recipes/v2",
-        params=params,
-        timeout=10,
+def _mealdb_search(fridge_input: FridgeInput) -> List[RecipeOption]:
+    # TheMealDB's free key "1" is intended for development/testing.
+    # The API supports filtering by a single ingredient; we pick the most salient ingredient.
+    seed_ingredient = (
+        (fridge_input.proteins[0] if fridge_input.proteins else None)
+        or (fridge_input.main_vegetables[0] if fridge_input.main_vegetables else None)
+        or None
     )
-    if response.status_code != 200:
+    if not seed_ingredient:
         return []
 
-    data = response.json()
-    results = []
-    for hit in data.get("hits", []):
-        recipe = hit.get("recipe", {})
+    filtered = _mealdb_get("filter.php", {"i": seed_ingredient})
+    meals = (filtered or {}).get("meals") or []
+    if not meals:
+        return []
+
+    results: List[RecipeOption] = []
+    for item in meals[:5]:
+        meal_id = item.get("idMeal")
+        if not meal_id:
+            continue
+        detail = _mealdb_get("lookup.php", {"i": meal_id})
+        meal = ((detail or {}).get("meals") or [None])[0]
+        if not meal:
+            continue
+
+        instructions = (meal.get("strInstructions") or "").strip()
+        steps = [s.strip() for s in instructions.split("\n") if s.strip()] or ["Follow the recipe instructions."]
         results.append(
             RecipeOption(
-                title=recipe.get("label", "Recipe option"),
-                cuisine=", ".join(recipe.get("cuisineType", []) or [fridge_input.cuisine_mood]),
-                time_minutes=int(recipe.get("totalTime", fridge_input.time_budget_minutes) or fridge_input.time_budget_minutes),
+                title=meal.get("strMeal") or "Meal option",
+                cuisine=meal.get("strArea") or fridge_input.cuisine_mood,
+                time_minutes=fridge_input.time_budget_minutes,
                 difficulty="easy",
-                ingredients=recipe.get("ingredientLines", []) or [],
-                steps=["Follow instructions at the source."],
-                notes="Sourced from Edamam.",
-                source="edamam",
-                source_url=recipe.get("url"),
+                ingredients=_mealdb_extract_ingredients(meal),
+                steps=steps,
+                notes="Sourced from TheMealDB.",
+                source="mealdb",
+                source_url=f"https://www.themealdb.com/meal/{meal_id}",
             )
         )
     return results
@@ -109,8 +131,21 @@ def search_recipes(fridge_input: FridgeInput) -> List[RecipeOption]:
         return []
 
     provider = settings.recipe_source_provider.lower().strip()
+    if provider == "auto":
+        # Prefer Spoonacular when a key exists; top up with TheMealDB if needed.
+        options: List[RecipeOption] = []
+        if settings.spoonacular_api_key:
+            options.extend(_spoonacular_search(fridge_input))
+        if len(options) < 5:
+            existing = {o.title.strip().lower() for o in options}
+            for o in _mealdb_search(fridge_input):
+                if o.title.strip().lower() not in existing:
+                    options.append(o)
+                if len(options) >= 5:
+                    break
+        return options
     if provider == "spoonacular":
         return _spoonacular_search(fridge_input)
-    if provider == "edamam":
-        return _edamam_search(fridge_input)
+    if provider == "mealdb":
+        return _mealdb_search(fridge_input)
     return []

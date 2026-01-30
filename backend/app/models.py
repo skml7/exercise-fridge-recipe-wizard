@@ -47,5 +47,5 @@ class RagConfig(BaseModel):
 
 
 class RecipeSourceConfig(BaseModel):
-    provider: str = "spoonacular"
+    provider: str = "spoonacular"  # spoonacular | mealdb | none
     enabled: bool = True

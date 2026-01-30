@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fridge Recipe Wizard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Fridge Recipe Wizard</h1>
+      <p class="subtitle">Weeknight recipes from what you already have.</p>
+
+      <section class="card">
+        <h2>Fridge input</h2>
+        <form id="fridge-form">
+          <label>
+            Main vegetables (comma-separated)
+            <input type="text" name="main_vegetables" placeholder="broccoli, carrots" />
+          </label>
+          <label>
+            Aromatics (comma-separated)
+            <input type="text" name="aromatics" placeholder="garlic, onion, ginger" />
+          </label>
+          <label>
+            Spices (comma-separated)
+            <input type="text" name="spices" placeholder="cumin, paprika, chili flakes" />
+          </label>
+          <label>
+            Proteins (comma-separated)
+            <input type="text" name="proteins" placeholder="chicken, tofu" />
+          </label>
+          <label>
+            Dietary (comma-separated)
+            <input type="text" name="dietary" placeholder="vegetarian, gluten-free" />
+          </label>
+          <label>
+            Cuisine mood
+            <input type="text" name="cuisine_mood" placeholder="spicy, italian, comforting" />
+          </label>
+          <label>
+            Time budget (minutes)
+            <input type="number" name="time_budget_minutes" value="30" />
+          </label>
+          <label>
+            Servings
+            <input type="number" name="servings" value="2" />
+          </label>
+          <label>
+            Equipment (comma-separated)
+            <input type="text" name="equipment" placeholder="skillet, blender" />
+          </label>
+          <button type="submit">Get options</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Options</h2>
+        <div id="options"></div>
+      </section>
+
+      <section class="card">
+        <h2>Selected recipe</h2>
+        <div id="selected"></div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

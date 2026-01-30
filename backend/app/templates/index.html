@@ -5,64 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fridge Recipe Wizard</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <meta name="color-scheme" content="dark light" />
   </head>
   <body>
-    <main class="container">
-      <h1>Fridge Recipe Wizard</h1>
-      <p class="subtitle">Weeknight recipes from what you already have.</p>
+    <div class="bg">
+      <div class="orb orb-a"></div>
+      <div class="orb orb-b"></div>
+      <div class="orb orb-c"></div>
+    </div>
 
-      <section class="card">
-        <h2>Fridge input</h2>
-        <form id="fridge-form">
-          <label>
-            Main vegetables (comma-separated)
-            <input type="text" name="main_vegetables" placeholder="broccoli, carrots" />
-          </label>
-          <label>
-            Aromatics (comma-separated)
-            <input type="text" name="aromatics" placeholder="garlic, onion, ginger" />
-          </label>
-          <label>
-            Spices (comma-separated)
-            <input type="text" name="spices" placeholder="cumin, paprika, chili flakes" />
-          </label>
-          <label>
-            Proteins (comma-separated)
-            <input type="text" name="proteins" placeholder="chicken, tofu" />
-          </label>
-          <label>
-            Dietary (comma-separated)
-            <input type="text" name="dietary" placeholder="vegetarian, gluten-free" />
-          </label>
-          <label>
-            Cuisine mood
-            <input type="text" name="cuisine_mood" placeholder="spicy, italian, comforting" />
-          </label>
-          <label>
-            Time budget (minutes)
-            <input type="number" name="time_budget_minutes" value="30" />
-          </label>
-          <label>
-            Servings
-            <input type="number" name="servings" value="2" />
-          </label>
-          <label>
-            Equipment (comma-separated)
-            <input type="text" name="equipment" placeholder="skillet, blender" />
-          </label>
-          <button type="submit">Get options</button>
-        </form>
+    <header class="topbar">
+      <div class="topbar-inner container">
+        <div>
+          <div class="brand">
+            <span class="brand-mark">FR</span>
+            <span class="brand-name">Fridge Recipe Wizard</span>
+          </div>
+          <p class="subtitle">Weeknight recipes from what you already have.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" id="theme-toggle" class="btn btn-ghost" aria-label="Toggle theme">
+            Theme
+          </button>
+          <a class="btn btn-ghost" href="/docs" target="_blank" rel="noreferrer">API</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container main">
+      <section class="hero">
+        <h1>
+          What can you cook
+          <span class="accent">tonight</span>?
+        </h1>
+        <p class="hero-copy">
+          Tell me what’s in your fridge and what vibe you’re craving. I’ll give you a few fast options you can
+          actually pull off.
+        </p>
       </section>
 
-      <section class="card">
-        <h2>Options</h2>
-        <div id="options"></div>
-      </section>
+      <div class="grid">
+        <section class="card card-glass">
+          <div class="card-head">
+            <h2>Fridge input</h2>
+            <p class="muted">Type and press Enter to add chips. Commas work too.</p>
+          </div>
 
-      <section class="card">
-        <h2>Selected recipe</h2>
-        <div id="selected"></div>
-      </section>
+          <form id="fridge-form" class="form">
+            <div class="field">
+              <div class="label-row">
+                <label for="main_vegetables">Main vegetables</label>
+                <span class="hint">e.g., broccoli, carrots</span>
+              </div>
+              <div class="chips" data-chips-for="main_vegetables"></div>
+              <input id="main_vegetables" class="input" type="text" name="main_vegetables" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="aromatics">Aromatics</label>
+                <span class="hint">e.g., garlic, onion, ginger</span>
+              </div>
+              <div class="chips" data-chips-for="aromatics"></div>
+              <input id="aromatics" class="input" type="text" name="aromatics" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="spices">Spices</label>
+                <span class="hint">e.g., cumin, paprika, chili flakes</span>
+              </div>
+              <div class="chips" data-chips-for="spices"></div>
+              <input id="spices" class="input" type="text" name="spices" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="proteins">Proteins</label>
+                <span class="hint">optional</span>
+              </div>
+              <div class="chips" data-chips-for="proteins"></div>
+              <input id="proteins" class="input" type="text" name="proteins" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="dietary">Dietary</label>
+                <span class="hint">optional</span>
+              </div>
+              <div class="chips" data-chips-for="dietary"></div>
+              <input id="dietary" class="input" type="text" name="dietary" autocomplete="off" />
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="cuisine_mood">Cuisine mood</label>
+                <span class="hint">pick a vibe</span>
+              </div>
+              <div class="pill-row" id="mood-pills">
+                <button type="button" class="pill" data-mood="spicy">Spicy</button>
+                <button type="button" class="pill" data-mood="comforting">Comforting</button>
+                <button type="button" class="pill" data-mood="italian">Italian-ish</button>
+                <button type="button" class="pill" data-mood="asian">Asian-ish</button>
+                <button type="button" class="pill" data-mood="fresh">Fresh</button>
+              </div>
+              <input
+                id="cuisine_mood"
+                class="input"
+                type="text"
+                name="cuisine_mood"
+                placeholder="quick and comforting"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <div class="label-row">
+                  <label for="time_budget_minutes">Time budget</label>
+                  <span class="hint"><span id="time-label">30</span> min</span>
+                </div>
+                <input
+                  id="time_budget_minutes"
+                  class="input"
+                  type="range"
+                  name="time_budget_minutes"
+                  min="10"
+                  max="60"
+                  step="5"
+                  value="30"
+                />
+              </div>
+
+              <div class="field">
+                <div class="label-row">
+                  <label for="servings">Servings</label>
+                  <span class="hint">2 is a vibe</span>
+                </div>
+                <input id="servings" class="input" type="number" name="servings" min="1" max="10" value="2" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="equipment">Equipment</label>
+                <span class="hint">optional</span>
+              </div>
+              <div class="chips" data-chips-for="equipment"></div>
+              <input id="equipment" class="input" type="text" name="equipment" autocomplete="off" />
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                <span class="btn-label">Generate options</span>
+                <span class="btn-spark" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="btn btn-ghost" id="reset-btn">Reset</button>
+            </div>
+
+            <div id="form-status" class="status" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+
+        <section class="card card-glass">
+          <div class="card-head">
+            <h2>Options</h2>
+            <p class="muted">Choose one to see the full steps.</p>
+          </div>
+          <div id="options" class="options"></div>
+        </section>
+
+        <section class="card card-glass">
+          <div class="card-head">
+            <h2>Selected</h2>
+            <p class="muted">The “do it now” version.</p>
+          </div>
+          <div id="selected" class="selected"></div>
+        </section>
+      </div>
     </main>
 
     <script src="/static/app.js"></script>

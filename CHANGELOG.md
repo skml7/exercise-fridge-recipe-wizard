@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Optional RAG dependencies moved to `backend/requirements-rag.txt` to keep base installs compatible on Windows/Python versions without required wheels.
+- Restyled the frontend to a clean, editorial layout and switched the hero/option visuals to real food photography.
+- Added cache-busting query strings for static CSS/JS to ensure UI updates appear after reloads.
 
 ### Fixed
 

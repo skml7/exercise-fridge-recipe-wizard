@@ -5,9 +5,7 @@ const statusEl = document.getElementById("form-status");
 const timeRange = document.getElementById("time_budget_minutes");
 const timeLabel = document.getElementById("time-label");
 const resetBtn = document.getElementById("reset-btn");
-const themeToggle = document.getElementById("theme-toggle");
 
-const STORAGE_THEME = "frw_theme";
 const STORAGE_CHIPS = "frw_chips";
 
 const escapeHtml = (input) =>
@@ -148,6 +146,20 @@ const renderOptionsSkeleton = () => {
   }
 };
 
+const PHOTO_POOL = [
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=400&q=80",
+];
+
+const pickPhoto = (seed) => {
+  const s = String(seed || "");
+  let hash = 0;
+  for (let i = 0; i < s.length; i += 1) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+  return PHOTO_POOL[hash % PHOTO_POOL.length];
+};
+
 const formatSource = (option) => {
   const source = String(option?.source || "generated");
   if (source === "spoonacular") return "Spoonacular";
@@ -168,16 +180,20 @@ const renderOptions = (options) => {
 
     const ingredientsPreview = (option.ingredients || []).slice(0, 10);
     const moreCount = Math.max(0, (option.ingredients || []).length - ingredientsPreview.length);
+    const photo = pickPhoto(option.title || index);
 
     card.innerHTML = `
       <div class="option-top">
-        <div>
-          <h3 class="option-title">${escapeHtml(option.title)}</h3>
-          <div class="badges">
-            <span class="badge info">${escapeHtml(option.cuisine || "weeknight")}</span>
-            <span class="badge good">${escapeHtml(option.time_minutes)} min</span>
-            <span class="badge">${escapeHtml(option.difficulty || "easy")}</span>
-            <span class="badge warn">${escapeHtml(formatSource(option))}</span>
+        <div class="option-media">
+          <img class="thumb" src="${escapeHtml(photo)}" alt="" loading="lazy" referrerpolicy="no-referrer" />
+          <div>
+            <h3 class="option-title">${escapeHtml(option.title)}</h3>
+            <div class="badges">
+              <span class="badge info">${escapeHtml(option.cuisine || "weeknight")}</span>
+              <span class="badge good">${escapeHtml(option.time_minutes)} min</span>
+              <span class="badge">${escapeHtml(option.difficulty || "easy")}</span>
+              <span class="badge warn">${escapeHtml(formatSource(option))}</span>
+            </div>
           </div>
         </div>
         <div class="option-actions">
@@ -271,23 +287,6 @@ const getPayload = () => {
     servings: Number(data.get("servings")) || 2,
     equipment: uniq([...chipState.equipment, ...splitToTokens(data.get("equipment") || "")]),
   };
-};
-
-const setTheme = (theme) => {
-  document.documentElement.dataset.theme = theme;
-  try {
-    localStorage.setItem(STORAGE_THEME, theme);
-  } catch {
-    // ignore
-  }
-};
-
-const getTheme = () => {
-  try {
-    return localStorage.getItem(STORAGE_THEME) || "";
-  } catch {
-    return "";
-  }
 };
 
 let lastPayload = null;
@@ -384,13 +383,7 @@ resetBtn?.addEventListener("click", () => {
   setStatus("Reset.", "muted");
 });
 
-themeToggle?.addEventListener("click", () => {
-  const current = document.documentElement.dataset.theme || "dark";
-  setTheme(current === "dark" ? "light" : "dark");
-});
-
 // init
-setTheme(getTheme() || "dark");
 loadChips();
 wireChipInputs();
 for (const key of Object.keys(chipState)) renderChips(key);

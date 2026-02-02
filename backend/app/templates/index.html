@@ -4,40 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fridge Recipe Wizard</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-    <meta name="color-scheme" content="dark light" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260202" />
+    <meta name="color-scheme" content="light" />
   </head>
   <body>
-    <div class="bg">
-      <div class="orb orb-a"></div>
-      <div class="orb orb-b"></div>
-      <div class="orb orb-c"></div>
-    </div>
-
     <header class="topbar">
       <div class="topbar-inner container">
-        <div>
-          <div class="brand">
-            <span class="brand-mark">FR</span>
-            <span class="brand-name">Fridge Recipe Wizard</span>
-          </div>
-          <p class="subtitle">Weeknight recipes from what you already have.</p>
+        <div class="brand">
+          <span class="brand-name">Fridge Recipe Wizard</span>
         </div>
 
         <div class="topbar-actions">
-          <button type="button" id="theme-toggle" class="btn btn-ghost" aria-label="Toggle theme">
-            Theme
-          </button>
-          <a class="btn btn-ghost" href="/docs" target="_blank" rel="noreferrer">API</a>
+          <a class="nav-link" href="/docs" target="_blank" rel="noreferrer">API</a>
         </div>
       </div>
     </header>
 
     <main class="container main">
       <section class="hero">
-        <div class="hero-banner" aria-hidden="true">
-          <img src="/static/hero.svg" alt="Healthy meal banner" loading="lazy" />
-        </div>
+        <figure class="hero-banner">
+          <img
+            src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1600&q=80"
+            alt="A bright, healthy meal in a bowl"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          />
+          <figcaption class="caption">
+            Photo via <a class="caption-link" href="https://unsplash.com/" target="_blank" rel="noreferrer">Unsplash</a>
+          </figcaption>
+        </figure>
         <h1>
           What can you cook
           <span class="accent">tonight</span>?
@@ -49,7 +44,7 @@
       </section>
 
       <div class="grid">
-        <section class="card card-glass">
+        <section class="card">
           <div class="card-head">
             <h2>Fridge input</h2>
             <p class="muted">Type and press Enter to add chips. Commas work too.</p>
@@ -162,16 +157,15 @@
             <div class="actions">
               <button type="submit" class="btn btn-primary" id="submit-btn">
                 <span class="btn-label">Generate options</span>
-                <span class="btn-spark" aria-hidden="true"></span>
               </button>
-              <button type="button" class="btn btn-ghost" id="reset-btn">Reset</button>
+              <button type="button" class="btn btn-secondary" id="reset-btn">Reset</button>
             </div>
 
             <div id="form-status" class="status" role="status" aria-live="polite"></div>
           </form>
         </section>
 
-        <section class="card card-glass">
+        <section class="card">
           <div class="card-head">
             <h2>Options</h2>
             <p class="muted">Choose one to see the full steps.</p>
@@ -179,7 +173,7 @@
           <div id="options" class="options"></div>
         </section>
 
-        <section class="card card-glass">
+        <section class="card">
           <div class="card-head">
             <h2>Selected</h2>
             <p class="muted">The “do it now” version.</p>
@@ -189,6 +183,6 @@
       </div>
     </main>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=20260202"></script>
   </body>
 </html>

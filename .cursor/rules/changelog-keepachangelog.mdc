@@ -1,0 +1,29 @@
+---
+description: Keep a Changelog enforcement (always update CHANGELOG.md)
+alwaysApply: true
+---
+
+# Changelog updates are mandatory
+
+Whenever you make **any user-requested change** (code, configs, docs, UI, dependencies), you must also update `CHANGELOG.md` in **Keep a Changelog** format.
+
+## Rules
+
+- **Always update** `CHANGELOG.md` in the same work session as the change.
+- Write entries under **`## [Unreleased]`** unless explicitly instructed to cut a release.
+- Use the standard section headings when applicable:
+  - `### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed`, `### Security`
+- Keep bullets **actionable** and written from the user’s point of view.
+- Do **not** include secrets, API keys, or internal tokens in the changelog.
+
+## Example
+
+```markdown
+## [Unreleased]
+
+### Added
+- Added TheMealDB as a free recipe source.
+
+### Fixed
+- Fixed LangGraph missing START edge that prevented graph compilation.
+```

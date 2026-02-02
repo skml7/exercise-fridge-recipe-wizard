@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700" role="img" aria-label="Healthy meal banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.28"/>
+      <stop offset="0.55" stop-color="#06b6d4" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#22c55e" stop-opacity="0.18"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset dx="0" dy="14" result="off"/>
+      <feColorMatrix in="off" type="matrix"
+        values="0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0.35 0" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="bowl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#0b1020" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="bowlRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1600" height="700" fill="#070915"/>
+  <rect width="1600" height="700" fill="url(#bg)"/>
+  <ellipse cx="520" cy="210" rx="520" ry="320" fill="url(#glow)" opacity="0.55"/>
+  <ellipse cx="1240" cy="160" rx="520" ry="320" fill="url(#glow)" opacity="0.35"/>
+
+  <!-- subtle grid -->
+  <g opacity="0.08">
+    <path d="M0 560H1600" stroke="#ffffff"/>
+    <path d="M0 420H1600" stroke="#ffffff"/>
+    <path d="M0 280H1600" stroke="#ffffff"/>
+    <path d="M0 140H1600" stroke="#ffffff"/>
+    <path d="M260 0V700" stroke="#ffffff"/>
+    <path d="M520 0V700" stroke="#ffffff"/>
+    <path d="M780 0V700" stroke="#ffffff"/>
+    <path d="M1040 0V700" stroke="#ffffff"/>
+    <path d="M1300 0V700" stroke="#ffffff"/>
+  </g>
+
+  <!-- bowl + food -->
+  <g filter="url(#softShadow)" transform="translate(240,120)">
+    <!-- table highlight -->
+    <ellipse cx="560" cy="470" rx="520" ry="120" fill="#000000" opacity="0.25"/>
+    <ellipse cx="560" cy="455" rx="470" ry="105" fill="#000000" opacity="0.18"/>
+
+    <!-- bowl -->
+    <path d="M180 330C180 470 320 560 560 560C800 560 940 470 940 330C940 330 860 320 560 320C260 320 180 330 180 330Z" fill="url(#bowl)"/>
+    <path d="M210 332C260 480 380 530 560 530C740 530 860 480 910 332" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="10" stroke-linecap="round"/>
+    <path d="M220 312C220 312 320 280 560 280C800 280 900 312 900 312" fill="none" stroke="url(#bowlRim)" stroke-width="18" stroke-linecap="round"/>
+
+    <!-- food base -->
+    <ellipse cx="560" cy="300" rx="360" ry="120" fill="#0b1226" opacity="0.45"/>
+
+    <!-- greens -->
+    <g>
+      <path d="M340 290C330 250 370 220 410 236C430 190 500 190 520 240C560 210 630 230 620 280C670 275 700 310 678 342C620 410 450 400 372 340C354 326 345 308 340 290Z" fill="#22c55e" opacity="0.85"/>
+      <path d="M520 290C520 250 560 220 600 238C630 206 690 214 702 260C742 252 780 280 770 320C760 372 680 405 610 402C555 400 520 350 520 290Z" fill="#16a34a" opacity="0.85"/>
+    </g>
+
+    <!-- veggies -->
+    <g>
+      <!-- tomatoes -->
+      <circle cx="455" cy="285" r="26" fill="#ef4444" opacity="0.9"/>
+      <circle cx="495" cy="318" r="22" fill="#f43f5e" opacity="0.9"/>
+      <circle cx="705" cy="296" r="24" fill="#ef4444" opacity="0.9"/>
+      <circle cx="650" cy="320" r="18" fill="#fb7185" opacity="0.9"/>
+      <!-- cucumber -->
+      <ellipse cx="585" cy="320" rx="62" ry="22" fill="#06b6d4" opacity="0.85"/>
+      <ellipse cx="585" cy="320" rx="44" ry="14" fill="#0ea5b7" opacity="0.85"/>
+      <!-- carrot ribbons -->
+      <path d="M410 345C470 320 520 350 580 330" stroke="#f59e0b" stroke-width="16" stroke-linecap="round" opacity="0.85"/>
+      <path d="M450 375C510 350 570 380 640 360" stroke="#fb923c" stroke-width="14" stroke-linecap="round" opacity="0.85"/>
+    </g>
+
+    <!-- grains/protein -->
+    <g opacity="0.9">
+      <ellipse cx="560" cy="360" rx="150" ry="52" fill="#fbbf24" opacity="0.55"/>
+      <circle cx="560" cy="350" r="52" fill="#fbbf24" opacity="0.65"/>
+      <path d="M540 332C560 316 590 318 606 342C626 372 604 402 572 404C538 406 518 366 540 332Z" fill="#fde68a" opacity="0.9"/>
+    </g>
+
+    <!-- fork -->
+    <g transform="translate(980,130) rotate(22)">
+      <path d="M40 0C44 0 48 4 48 8V88C48 100 56 112 68 116V480C68 490 60 498 50 498H30C20 498 12 490 12 480V116C24 112 32 100 32 88V8C32 4 36 0 40 0Z" fill="#ffffff" opacity="0.22"/>
+      <path d="M18 18H26V78C26 88 22 96 14 102V116C26 112 34 100 34 88V18H42V88C42 100 50 112 62 116V102C54 96 50 88 50 78V18H58V78C58 94 50 110 40 116C30 110 18 94 18 78V18Z" fill="#ffffff" opacity="0.18"/>
+    </g>
+  </g>
+
+  <!-- headline overlay text (subtle, not required for UI) -->
+  <g opacity="0.22" transform="translate(96,88)">
+    <text x="0" y="0" fill="#ffffff" font-size="40" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-weight="700">Healthy, fast, and actually doable.</text>
+  </g>
+</svg>

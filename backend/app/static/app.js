@@ -1,12 +1,10 @@
-const form = document.getElementById("fridge-form");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-text");
+const chatThread = document.getElementById("chat-thread");
 const optionsContainer = document.getElementById("options");
 const selectedContainer = document.getElementById("selected");
 const statusEl = document.getElementById("form-status");
-const timeRange = document.getElementById("time_budget_minutes");
-const timeLabel = document.getElementById("time-label");
-const resetBtn = document.getElementById("reset-btn");
-
-const STORAGE_CHIPS = "frw_chips";
+const sendBtn = document.getElementById("send-btn");
 
 const escapeHtml = (input) =>
   String(input ?? "")
@@ -15,12 +13,6 @@ const escapeHtml = (input) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-
-const splitToTokens = (value) =>
-  String(value || "")
-    .split(/[,\n]/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
 
 const uniq = (items) => {
   const out = [];
@@ -32,91 +24,6 @@ const uniq = (items) => {
     out.push(item.trim());
   }
   return out;
-};
-
-const chipState = {
-  main_vegetables: [],
-  aromatics: [],
-  spices: [],
-  proteins: [],
-  dietary: [],
-  equipment: [],
-};
-
-const loadChips = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_CHIPS);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    for (const key of Object.keys(chipState)) {
-      if (Array.isArray(parsed[key])) chipState[key] = uniq(parsed[key]);
-    }
-  } catch {
-    // ignore
-  }
-};
-
-const saveChips = () => {
-  try {
-    localStorage.setItem(STORAGE_CHIPS, JSON.stringify(chipState));
-  } catch {
-    // ignore
-  }
-};
-
-const renderChips = (fieldName) => {
-  const wrap = document.querySelector(`[data-chips-for="${fieldName}"]`);
-  if (!wrap) return;
-  wrap.innerHTML = "";
-  for (const token of chipState[fieldName]) {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-    chip.innerHTML = `
-      <span>${escapeHtml(token)}</span>
-      <button type="button" aria-label="Remove ${escapeHtml(token)}">×</button>
-    `;
-    chip.querySelector("button").addEventListener("click", () => {
-      chipState[fieldName] = chipState[fieldName].filter((x) => x !== token);
-      saveChips();
-      renderChips(fieldName);
-    });
-    wrap.appendChild(chip);
-  }
-};
-
-const addChipsFromInput = (inputEl) => {
-  const fieldName = inputEl.name;
-  if (!chipState[fieldName]) return;
-  const tokens = splitToTokens(inputEl.value);
-  if (!tokens.length) return;
-  chipState[fieldName] = uniq([...chipState[fieldName], ...tokens]);
-  inputEl.value = "";
-  saveChips();
-  renderChips(fieldName);
-};
-
-const wireChipInputs = () => {
-  const chipInputs = Array.from(form.querySelectorAll("input.input[type='text']"));
-  for (const inputEl of chipInputs) {
-    if (!chipState[inputEl.name]) continue;
-
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        addChipsFromInput(inputEl);
-      }
-      if (e.key === "," || e.key === "Tab") {
-        addChipsFromInput(inputEl);
-      }
-      if (e.key === "Backspace" && !inputEl.value) {
-        chipState[inputEl.name].pop();
-        saveChips();
-        renderChips(inputEl.name);
-      }
-    });
-
-    inputEl.addEventListener("blur", () => addChipsFromInput(inputEl));
-  }
 };
 
 const setStatus = (text, tone = "muted") => {
@@ -132,9 +39,9 @@ const setStatus = (text, tone = "muted") => {
 };
 
 const setLoading = (isLoading) => {
-  const btn = document.getElementById("submit-btn");
-  btn.disabled = isLoading;
-  btn.querySelector(".btn-label").textContent = isLoading ? "Summoning options..." : "Generate options";
+  if (!sendBtn) return;
+  sendBtn.disabled = isLoading;
+  sendBtn.querySelector(".btn-label").textContent = isLoading ? "Thinking..." : "Send";
 };
 
 const renderOptionsSkeleton = () => {
@@ -144,20 +51,6 @@ const renderOptionsSkeleton = () => {
     sk.className = "skeleton";
     optionsContainer.appendChild(sk);
   }
-};
-
-const PHOTO_POOL = [
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
-  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80",
-  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80",
-  "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=400&q=80",
-];
-
-const pickPhoto = (seed) => {
-  const s = String(seed || "");
-  let hash = 0;
-  for (let i = 0; i < s.length; i += 1) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
-  return PHOTO_POOL[hash % PHOTO_POOL.length];
 };
 
 const formatSource = (option) => {
@@ -170,7 +63,7 @@ const formatSource = (option) => {
 const renderOptions = (options) => {
   optionsContainer.innerHTML = "";
   if (!options.length) {
-    optionsContainer.innerHTML = `<p class="muted">No options yet. Add a few ingredients and hit “Generate options”.</p>`;
+    optionsContainer.innerHTML = `<p class="muted">No options yet. Share a few ingredients to get started.</p>`;
     return;
   }
 
@@ -180,12 +73,10 @@ const renderOptions = (options) => {
 
     const ingredientsPreview = (option.ingredients || []).slice(0, 10);
     const moreCount = Math.max(0, (option.ingredients || []).length - ingredientsPreview.length);
-    const photo = pickPhoto(option.title || index);
 
     card.innerHTML = `
       <div class="option-top">
         <div class="option-media">
-          <img class="thumb" src="${escapeHtml(photo)}" alt="" loading="lazy" referrerpolicy="no-referrer" />
           <div>
             <h3 class="option-title">${escapeHtml(option.title)}</h3>
             <div class="badges">
@@ -273,65 +164,70 @@ const renderSelected = (recipe) => {
   }
 };
 
-const getPayload = () => {
-  const data = new FormData(form);
-  const mood = String(data.get("cuisine_mood") || "").trim() || "quick and comforting";
-  return {
-    main_vegetables: uniq([...chipState.main_vegetables, ...splitToTokens(data.get("main_vegetables") || "")]),
-    aromatics: uniq([...chipState.aromatics, ...splitToTokens(data.get("aromatics") || "")]),
-    spices: uniq([...chipState.spices, ...splitToTokens(data.get("spices") || "")]),
-    proteins: uniq([...chipState.proteins, ...splitToTokens(data.get("proteins") || "")]),
-    dietary: uniq([...chipState.dietary, ...splitToTokens(data.get("dietary") || "")]),
-    cuisine_mood: mood,
-    time_budget_minutes: Number(data.get("time_budget_minutes")) || 30,
-    servings: Number(data.get("servings")) || 2,
-    equipment: uniq([...chipState.equipment, ...splitToTokens(data.get("equipment") || "")]),
-  };
+const renderChat = (messages) => {
+  chatThread.innerHTML = "";
+  for (const message of messages) {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble ${message.role === "user" ? "is-user" : "is-assistant"}`;
+    bubble.innerHTML = `<p>${escapeHtml(message.content)}</p>`;
+    chatThread.appendChild(bubble);
+  }
+  chatThread.scrollTop = chatThread.scrollHeight;
 };
 
-let lastPayload = null;
+let chatMessages = [
+  {
+    role: "assistant",
+    content: "What’s in your fridge? You can also tell me the vibe you want.",
+  },
+];
 let lastOptions = [];
+let lastFridgeInput = null;
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+const sendChatTurn = async () => {
+  const text = String(chatInput.value || "").trim();
+  if (!text) return;
+
+  chatMessages = [...chatMessages, { role: "user", content: text }];
+  chatInput.value = "";
+  renderChat(chatMessages);
   setStatus("");
-  renderSelected(null);
   setLoading(true);
   renderOptionsSkeleton();
 
-  // absorb any pending text in chip inputs
-  for (const key of Object.keys(chipState)) {
-    const inputEl = form.querySelector(`input[name="${key}"]`);
-    if (inputEl && inputEl.value) addChipsFromInput(inputEl);
-  }
-
-  const payload = getPayload();
-  lastPayload = payload;
-
   try {
-    const response = await fetch("/api/recipes/options", {
+    const response = await fetch("/api/chat/turn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ messages: chatMessages, fridge_input: lastFridgeInput }),
     });
     if (!response.ok) {
       const text = await response.text();
       throw new Error(text || `HTTP ${response.status}`);
     }
     const data = await response.json();
+    if (data.assistant_message) {
+      chatMessages = [...chatMessages, { role: "assistant", content: data.assistant_message }];
+      renderChat(chatMessages);
+    }
+    if (data.fridge_input) lastFridgeInput = data.fridge_input;
     lastOptions = data.options || [];
     renderOptions(lastOptions);
-    if (!lastOptions.length) setStatus("No hits. Try adding a protein or changing the mood.", "warn");
+    if (data.next_action === "ask") {
+      setStatus("Give me a bit more detail so I can personalize.", "muted");
+    } else if (!lastOptions.length) {
+      setStatus("No hits. Try adding a protein or changing the mood.", "warn");
+    }
   } catch (err) {
     renderOptions([]);
     setStatus(`Couldn’t fetch options. ${err?.message || ""}`.trim(), "bad");
   } finally {
     setLoading(false);
   }
-});
+};
 
 const chooseOption = async (index) => {
-  if (!lastPayload) return;
+  if (!lastFridgeInput) return;
   setStatus("Locking in a plan...", "muted");
   selectedContainer.innerHTML = `<div class="skeleton" style="height: 220px"></div>`;
 
@@ -339,7 +235,7 @@ const chooseOption = async (index) => {
     const response = await fetch("/api/recipes/choose", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ option_id: String(index), fridge_input: lastPayload }),
+      body: JSON.stringify({ option_id: String(index), fridge_input: lastFridgeInput }),
     });
     if (!response.ok) {
       const text = await response.text();
@@ -354,39 +250,19 @@ const chooseOption = async (index) => {
   }
 };
 
-// mood pills
-document.getElementById("mood-pills")?.addEventListener("click", (e) => {
-  const btn = e.target?.closest?.("button[data-mood]");
-  if (!btn) return;
-  const mood = btn.getAttribute("data-mood");
-  const input = document.getElementById("cuisine_mood");
-  input.value = mood;
-  for (const el of Array.from(document.querySelectorAll(".pill"))) el.classList.remove("is-active");
-  btn.classList.add("is-active");
+chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendChatTurn();
 });
 
-// time slider label
-const syncTime = () => {
-  timeLabel.textContent = String(timeRange.value);
-};
-timeRange?.addEventListener("input", syncTime);
-syncTime();
-
-resetBtn?.addEventListener("click", () => {
-  for (const key of Object.keys(chipState)) chipState[key] = [];
-  saveChips();
-  for (const key of Object.keys(chipState)) renderChips(key);
-  form.reset();
-  syncTime();
-  renderOptions([]);
-  renderSelected(null);
-  setStatus("Reset.", "muted");
+chatInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    sendChatTurn();
+  }
 });
 
-// init
-loadChips();
-wireChipInputs();
-for (const key of Object.keys(chipState)) renderChips(key);
 renderOptions([]);
 renderSelected(null);
-setStatus("Tip: press Enter to add chips. Backspace removes the last chip.", "muted");
+renderChat(chatMessages);
+setStatus("Tip: include a time like “20 min” or “for 4”.", "muted");

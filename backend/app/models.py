@@ -40,6 +40,23 @@ class RecipeResponse(BaseModel):
     shopping_list: List[str] = Field(default_factory=list)
 
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatTurnRequest(BaseModel):
+    messages: List[ChatMessage] = Field(default_factory=list)
+    fridge_input: Optional[FridgeInput] = None
+
+
+class ChatTurnResponse(BaseModel):
+    next_action: str
+    assistant_message: str
+    options: List[RecipeOption] = Field(default_factory=list)
+    fridge_input: Optional[FridgeInput] = None
+
+
 class RagConfig(BaseModel):
     enabled: bool = False
     collection_name: str = "fridge-recipes"
